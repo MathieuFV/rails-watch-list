@@ -1,0 +1,50 @@
+<div class="application-container">
+
+  <div class="watchlist-left-column">
+    <h1 class="main-title"><%= @list.name %></h1>
+
+    <h2>Movies in this List</h2>
+    <% if @list.movies.any? %>
+      <ul>
+        <% @list.bookmarks.each do |bookmark| %>
+          <li>
+            <strong><%= bookmark.movie.title %></strong> - <%= bookmark.movie.rating %>/10
+            <p><%= bookmark.comment %></p>
+            <img src="<%= bookmark.movie.poster_url %>" alt="<%= bookmark.movie.title %>" style="width: 200px;">
+            <%= form_with model: [@list, bookmark], method: :delete, local: true do %>
+              <%= submit_tag 'Delete Bookmark', class: 'btn btn-danger', data: { confirm: 'Are you sure?' } %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No movies in this list yet.</p>
+    <% end %>
+
+    <h2>Add a new Bookmark</h2>
+    <% bookmark = Bookmark.new %>
+    <% Rails.logger.debug "Bookmark: #{bookmark.inspect}" %>
+    <%= render 'bookmarks/form', list: @list, bookmark: bookmark %>
+
+    <h2>Reviews</h2>
+    <% @list.reviews.each do |review| %>
+      <div>
+        <strong>Rating:</strong> <%= review.rating %>/5
+        <p><%= review.content %></p>
+      </div>
+    <% end %>
+
+    <h2>Leave a Review</h2>
+    <%= simple_form_for([@list, @list.reviews.build]) do |f| %>
+      <div class="form-group">
+        <%= f.input :rating, label: "Rating (1-5)", as: :select, collection: 1..5, include_blank: false %>
+      </div>
+      <div class="form-group">
+        <%= f.input :content, label: "Your Review", as: :text %>
+      </div>
+      <%= f.submit "Submit Review", class: "btn btn-primary" %>
+    <% end %>
+
+    <%= link_to 'Back to Lists', lists_path, class: 'btn btn-secondary' %>
+  </div>
+</div>

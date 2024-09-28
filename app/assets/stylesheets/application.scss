@@ -10,3 +10,13 @@
 // Your CSS partials
 @import "components/index";
 @import "pages/index";
+@import "pages/lists/show";
+
+.application-container {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.main-title {
+  font-size: 120px;
+}

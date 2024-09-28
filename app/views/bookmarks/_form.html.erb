@@ -1,0 +1,16 @@
+<% Rails.logger.debug "List: #{@list.inspect}" %>
+<% Rails.logger.debug "Bookmark: #{bookmark.inspect}" %>
+
+<%= simple_form_for [@list, bookmark] do |f| %>
+  <div class="form-group">
+    <%= f.input :movie_id, collection: Movie.all.map { |movie| [movie.title, movie.id] }, label: "Choose a movie", include_blank: "Select a movie" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.input :comment, label: "Your comment", input_html: { class: 'form-control' } %>
+  </div>
+
+  <div class="form-group">
+    <%= f.button :submit, "Add Bookmark", class: 'btn btn-primary' %>
+  </div>
+<% end %>
