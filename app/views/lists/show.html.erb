@@ -1,50 +1,143 @@
 <div class="application-container">
 
-  <div class="watchlist-left-column">
-    <h1 class="main-title"><%= @list.name %></h1>
+  <div class="watchlist-grid">
+    <div class="title-and-view">
+      <div class="scrolling-title">
+        <h1 class="list-title"><%= @list.name %></h1>
+      </div>
+      <div class="view-status-bar">
+        <div class="view-buttons">
+          <p class="view-status-p">VIEW</p>
+          <button id="grid-view-btn" class="view-button"><%= image_tag "icons/grid.svg", alt: "Grid View", class: "icon" %></button>
+          <button id="horizontal-view-btn" class="view-button"><%= image_tag "icons/horizontal-list.svg", alt: "Horizontal View", class: "icon" %></button>
+          <button id="vertical-view-btn" class="view-button"><%= image_tag "icons/vertical-list.svg", alt: "Vertical View", class: "icon" %></button>
+        </div>
+        <p class="view-status-p">PUBLIC</p>
+      </div>
+    </div>
 
-    <h2>Movies in this List</h2>
     <% if @list.movies.any? %>
-      <ul>
-        <% @list.bookmarks.each do |bookmark| %>
-          <li>
-            <strong><%= bookmark.movie.title %></strong> - <%= bookmark.movie.rating %>/10
-            <p><%= bookmark.comment %></p>
-            <img src="<%= bookmark.movie.poster_url %>" alt="<%= bookmark.movie.title %>" style="width: 200px;">
-            <%= form_with model: [@list, bookmark], method: :delete, local: true do %>
-              <%= submit_tag 'Delete Bookmark', class: 'btn btn-danger', data: { confirm: 'Are you sure?' } %>
+      <!-- Première carte spéciale dans la première colonne -->
+      <% if @list.bookmarks.first %>
+        <div class="movie-card special-card special-card-1">
+          <div class="special-card-1-backdrop">
+            <img src="<%= @list.bookmarks.first.movie.backdrop_url %>" alt="<%= @list.bookmarks.first.movie.title %>" class="special-card-1-movie-poster">
+            <%= form_with model: [@list, @list.bookmarks.first], method: :delete, local: true do %>
+              <%= button_tag(type: 'submit', class: 'delete-btn', data: { confirm: 'Are you sure?' }) do %>
+                <i class="fa-solid fa-square-minus"></i>
+              <% end %>
             <% end %>
-          </li>
-        <% end %>
-      </ul>
+          </div>
+          <div class="special-card-1-description">
+            <div class="special-card-1-title-comment">
+              <h2 class="movie-title"><%= "#{@list.bookmarks.first.movie.title} (#{@list.bookmarks.first.movie.release_date.strftime('%Y')})" %></h2>
+              <p class="bookmark-comment"><%= @list.bookmarks.first.comment %></p>
+            </div>
+            <p class="movie-description"><%= @list.bookmarks.first.movie.overview %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Deuxième carte spéciale dans la deuxième colonne -->
+      <% if @list.bookmarks.second %>
+        <div class="movie-card special-card special-card-2">
+          <div class="special-card-2-backdrop">
+            <img src="<%= @list.bookmarks.second.movie.poster_url %>" alt="<%= @list.bookmarks.second.movie.title %>" class="special-card-2-movie-poster">
+            <%= form_with model: [@list, @list.bookmarks.second], method: :delete, local: true do %>
+              <%= button_tag(type: 'submit', class: 'delete-btn', data: { confirm: 'Are you sure?' }) do %>
+                <i class="fa-solid fa-square-minus"></i>
+              <% end %>
+            <% end %>
+          </div>
+          <div class="special-card-2-description">
+            <p class="movie-description"><%= @list.bookmarks.second.movie.overview %></p>
+            <h2 class="movie-title"><%= "#{@list.bookmarks.second.movie.title} (#{@list.bookmarks.second.movie.release_date.strftime('%Y')})" %></h2>
+            <p class="bookmark-comment"><%= @list.bookmarks.second.comment %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Les cartes suivantes se répartissent automatiquement -->
+      <% @list.bookmarks.drop(2).each do |bookmark| %>
+        <div class="movie-card">
+          <div class="movie-card-backdrop">
+            <img src="<%= bookmark.movie.backdrop_url %>" alt="<%= bookmark.movie.title %>" class="movie-poster">
+            <%= form_with model: [@list, bookmark], method: :delete, local: true do %>
+              <%= button_tag(type: 'submit', class: 'delete-btn', data: { confirm: 'Are you sure?' }) do %>
+              <i class="fa-solid fa-square-minus"></i>
+            <% end %>
+          <% end %>
+          </div>
+          <div class="movie-card-description">
+            <h2 class="movie-title"><%= "#{bookmark.movie.title} (#{bookmark.movie.release_date.strftime('%Y')})" %></h2>
+            <p class="movie-description"><%= bookmark.movie.overview %></p>
+            <p class="bookmark-comment"><%= bookmark.comment %></p>
+          </div>
+        </div>
+      <% end %>
     <% else %>
       <p>No movies in this list yet.</p>
     <% end %>
 
-    <h2>Add a new Bookmark</h2>
-    <% bookmark = Bookmark.new %>
-    <% Rails.logger.debug "Bookmark: #{bookmark.inspect}" %>
-    <%= render 'bookmarks/form', list: @list, bookmark: bookmark %>
+    <div class="new-bookmark">
+      <h2>Add a new Bookmark</h2>
+      <% bookmark = Bookmark.new %>
+      <% Rails.logger.debug "Bookmark: #{bookmark.inspect}" %>
+      <%= render 'bookmarks/form', list: @list, bookmark: bookmark %>
+    </div>
 
-    <h2>Reviews</h2>
-    <% @list.reviews.each do |review| %>
-      <div>
-        <strong>Rating:</strong> <%= review.rating %>/5
-        <p><%= review.content %></p>
-      </div>
-    <% end %>
+    <div class="reviews">
+      <h2>Reviews</h2>
+      <% @list.reviews.each do |review| %>
+        <div>
+          <strong>Rating:</strong> <%= review.rating %>/5
+          <p><%= review.content %></p>
+        </div>
+      <% end %>
+    </div>
 
-    <h2>Leave a Review</h2>
-    <%= simple_form_for([@list, @list.reviews.build]) do |f| %>
-      <div class="form-group">
-        <%= f.input :rating, label: "Rating (1-5)", as: :select, collection: 1..5, include_blank: false %>
+    <div class="footer-fixed">
+      <div class="rating-data" data-controller="review-modal">
+        <p class="view-status-p"><%= @list.reviews.count %> USER REVIEWS</p>
+        <p class="view-status-p"><%= number_with_precision(@average_rating, precision: 1) %> AVG REVIEW</p>
+        <button data-action="click->review-modal#open" class="add-review-btn">Leave a Review</button>
+        <div class="modal" data-review-modal-target="modal">
+          <div class="modal-content">
+            <span data-action="click->review-modal#close" class="close-modal">&times;</span>
+            <h2>Leave a Review</h2>
+            <%= simple_form_for([@list, @list.reviews.build]) do |f| %>
+              <div class="form-group">
+                <%= f.input :rating,
+                  label: "Rating (1-5)",
+                  as: :select,
+                  collection: 1..5,
+                  include_blank: false,
+                  label_html: { class: 'modal-input-label' },
+                  input_html: { class: 'modal-input' }%>
+              </div>
+              <div class="form-group">
+                <%= f.input :content,
+                  label: "Your Review",
+                  as: :text,
+                  class: "modal-input",
+                  label_html: { class: 'modal-input-label' },
+                  input_html: { class: 'modal-input' }%>
+              </div>
+              <%= f.submit "SUBMIT", class: "modal-submit-btn" %>
+            <% end %>
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <%= f.input :content, label: "Your Review", as: :text %>
+      <div class="back-btn">
+        <div class="hover-overlay">
+          <p class="view-status-p">MORE TO EXPLORE</p>
+          <%= image_tag "icons/arrow.svg", alt: "Back to lists arrow", class: "arrow" %>
+        </div>
+        <%= link_to 'BACK TO LISTS', lists_path, class: 'back-to-lists-btn' %>
       </div>
-      <%= f.submit "Submit Review", class: "btn btn-primary" %>
-    <% end %>
-
-    <%= link_to 'Back to Lists', lists_path, class: 'btn btn-secondary' %>
+    </div>
   </div>
+</div>
+
+<div class="footer">
 </div>

@@ -25,6 +25,7 @@ begin
         title: movie_data['title'],
         overview: movie_data['overview'],
         poster_url: "https://image.tmdb.org/t/p/original/#{movie_data['poster_path']}",
+        backdrop_url: "https://image.tmdb.org/t/p/w780#{movie_data['backdrop_path']}",
         rating: movie_data['vote_average'],
         tmdb_id: movie_data['id'],
         genres_ids: movie_data['genre_ids'].join(","),
